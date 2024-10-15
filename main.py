@@ -1,8 +1,9 @@
 """main script"""
 
-import pandas as pd
-from my_packages import web_logger
+from my_packages import web_logger, api_logger
 
-df = web_logger.web_scrape()
+artists = web_logger.web_scrape()
 
-print(df)
+events = api_logger.api_events()
+
+print(events)
