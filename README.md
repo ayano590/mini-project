@@ -17,3 +17,11 @@ Add Andreas Schaubmaier and ICMaurer as collaborators.
 Write code for the web scraper. (might not work as intended yet)
 
 Second commit.
+
+Fixed git user.
+
+Issue: web scraper status code 403 due to empty user agent (UA) string. Fixed.
+
+Imported the scraper into the main script and tested for output.
+
+Commit.

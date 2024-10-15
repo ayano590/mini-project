@@ -6,8 +6,13 @@ def web_scrape():
 
     url = 'https://jazzfuel.com/best-jazz-albums/'
 
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+        'From': 'aram.sajdak@gmail.com'  # This is another valid field
+    }
+
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
 
         if response.status_code == 200:
             # Parsing the HTML
@@ -19,7 +24,9 @@ def web_scrape():
             album = []
             for val in content.findAll('h2'):
                 rm_enum = val.text.split('. ', maxsplit=1)
-                rm_colon = rm_enum.split(': ', maxsplit=1)
+                if len(rm_enum) == 1:  # unwanted h2 element not belonging to the list
+                    continue
+                rm_colon = rm_enum[-1].split(': ', maxsplit=1)
                 album.append(rm_colon[-1])
 
             df = pd.DataFrame({'Album Name': album})
