@@ -11,3 +11,9 @@ Create a Dockerfile and set it up as dev env.
 Add the necessary modules to requirements.txt. (more will be added later)
 
 Initial commit.
+
+Add Andreas Schaubmaier and ICMaurer as collaborators.
+
+Write code for the web scraper. (might not work as intended yet)
+
+Second commit.
