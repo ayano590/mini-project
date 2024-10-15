@@ -34,3 +34,9 @@ Name of place can be queried easily, but the area code points to a table
 outside the simple database representation.
 
 Commit.
+
+Add module psycopg2 to requirements.txt.
+
+Write code for the database API. (not finished)
+
+Commit.

@@ -2,3 +2,4 @@ matplotlib
 requests
 os
 bs4
+psycopg2
