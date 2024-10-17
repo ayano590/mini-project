@@ -40,3 +40,18 @@ Add module psycopg2 to requirements.txt.
 Write code for the database API. (not finished)
 
 Commit.
+
+add_artists() takes a list of artists, while add_events takes only one artist and event.
+
+Change api_event() lucene query to search for two artists separately.
+
+Change api_event() to return zip turned to list of tuples, also needs a number in addition to artist name.
+(number will be the index in the artists table and has to be fetched first)
+
+Change web_scrape() to return a list of tuples to feed it all in one transaction into the artists table.
+
+Create structure of the main script.
+
+Add get_event_count() method to MBPostgres class. (after lunch break)
+
+Commit.

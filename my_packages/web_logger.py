@@ -28,7 +28,9 @@ def web_scrape():
                 rm_colon = rm_enum[-1].split(': ', maxsplit=1)
                 artists.append(rm_colon[0])
 
-            return list(set(artists))
+            artists_set = set(artists)
+            artists_tup = [(i, ) for i in artists_set]
+            return artists_tup
 
         else:
             print(f'ERROR: Connection unsuccessful: {response.status_code}')

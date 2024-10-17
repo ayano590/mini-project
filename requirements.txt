@@ -3,3 +3,4 @@ requests
 os
 bs4
 psycopg2
+pandas
