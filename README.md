@@ -55,3 +55,23 @@ Create structure of the main script.
 Add get_event_count() method to MBPostgres class. (after lunch break)
 
 Commit.
+
+Add get_event_count(). (this time for real)
+
+Continue writing the main script. Parallel to that, define header in main script and feed into functions.
+
+Save data to csv.
+
+Save plot to png.
+
+First test run.
+
+Change syntax in FOREIGN KEY definition. (not sure why psycopg2 does not accept the old one)
+
+Correct the get_artists() method.
+
+Change the returned datatype of api_events to tuple of tuples.
+
+Correct some syntax errors here and there.
+
+Add x label, sort df, increase bar spacing.

@@ -1,6 +1,6 @@
 import requests
 
-def api_events(num, artist):
+def api_events(num, artist, headers):
 
     if ' and ' in artist:
         artist = artist.split(' and ')
@@ -10,14 +10,9 @@ def api_events(num, artist):
     root_url = 'https://musicbrainz.org/ws/2/'
 
     if isinstance(artist, list):
-        url = root_url + f'event?query=(+"{artist[0]}" +"{artist[1]}")&fmt=json'
+        url = root_url + f'event?query=(+"{artist[0]}" +"{artist[1]}")&limit=100&fmt=json'
     else:
-        url = root_url + f'event?query="{artist}"&fmt=json'
-
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
-        'From': 'aram.sajdak@gmail.com'
-        }
+        url = root_url + f'event?query="{artist}"&limit=100&fmt=json'
 
     try:
         response = requests.get(url, headers=headers)
@@ -28,9 +23,9 @@ def api_events(num, artist):
             event_name = [i['name'] for i in event_json]
             event_begin = [i['life-span']['begin'] for i in event_json]
             event_end = [i['life-span']['end'] for i in event_json]
-            num_list = [num for _ in range(len(event_name))]
+            num_list = [num for _ in range(len(event_json))]
             events_zip = zip(num_list, event_name, event_begin, event_end)
-            events = [i for i in events_zip]
+            events = (i for i in events_zip)
             return events
 
         else:
