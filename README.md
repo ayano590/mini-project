@@ -1,94 +1,41 @@
-First step is to get acquainted with the MusicBrainz API.
+---PROJECT GOALS---
 
-Find a website where you can find a list of jazz albums. (for web scraping)
+This project aims to fetch the artists (and groups) from the best 50 Jazz Albums.
+(according to https://jazzfuel.com/best-jazz-albums/)
 
-Then create project folder with .gitignore, Git repo and link it.
+The API then looks up all events linked to them, be it festivals, concerts and the like.
 
-Create the python modules (+ tests) and main script.
+The artists and the events are then saved in their respective tables with PostgreSQL.
 
-Create a Dockerfile and set it up as dev env.
+The user is asked to provide an artist name, in order to get the events.
 
-Add the necessary modules to requirements.txt. (more will be added later)
+The program outputs a csv file with the event count for each artist, as well as a graphical representation,
+split into two png files.
 
-Initial commit.
+---SETUP---
 
-Add Andreas Schaubmaier and ICMaurer as collaborators.
+Create a PostgreSQL database.
 
-Write code for the web scraper. (might not work as intended yet)
+In the db_config.py file, the user can change the credentials for their server.
 
-Commit.
+In order to run this program, start Docker Desktop first.
 
-Fix git user.
+Then open the IDE of your choice. (PyCharm Professional was used for development)
 
-Issue: web scraper status code 403 due to empty user agent (UA) string. Fix.
+Add a Docker Interpreter and select the Dockerfile from this project.
 
-Import the scraper into the main script and tested for output.
+DISCLAIMER: According to stackoverflow it is possible to use the Conda Environment,
+but it requires you to activate Conda within the Docker Container.
+Use a preinstalled version of Python instead.
 
-Commit.
+Link on how to use Conda in Docker: https://stackoverflow.com/questions/52049202/how-to-use-docker-and-conda-in-pycharm
 
-Write code for the musicbrainz API and test it with 'Ella Fitzgerald'.
+In the IDE terminal, go to the project folder and run these commands
+(replace <imagename> with a name of your choice):
 
-Change aim of the project to count the number of events, where the artists perform,
-rather than trying to extract the country info.
-Name of place can be queried easily, but the area code points to a table
-outside the simple database representation.
+docker build -t <imagename> .
+docker run -it --rm -v "${PWD}:/app" <imagename>
 
-Commit.
+When the program terminates without error, the csv and png files will be overwritten.
 
-Add module psycopg2 to requirements.txt.
-
-Write code for the database API. (not finished)
-
-Commit.
-
-add_artists() takes a list of artists, while add_events takes only one artist and event.
-
-Change api_event() lucene query to search for two artists separately.
-
-Change api_event() to return zip turned to list of tuples, also needs a number in addition to artist name.
-(number will be the index in the artists table and has to be fetched first)
-
-Change web_scrape() to return a list of tuples to feed it all in one transaction into the artists table.
-
-Create structure of the main script.
-
-Add get_event_count() method to MBPostgres class. (after lunch break)
-
-Commit.
-
-Add get_event_count(). (this time for real)
-
-Continue writing the main script. Parallel to that, define header in main script and feed into functions.
-
-Save data to csv.
-
-Save plot to png.
-
-First test run.
-
-Change syntax in FOREIGN KEY definition.
-
-Correct the get_artists() method.
-
-Change the returned datatype of api_events to tuple of tuples.
-
-Correct some syntax errors here and there.
-
-Add x label, sort df, increase bar spacing.
-
-Add method get_event_by_artist() and make the script interactive.
-
-Add some print statements.
-
-Commit.
-
-Add database config file and import.
-
-Run docker container.
-
-Change imports. (remove os and time, use beautifulsoup4 instead of bf4)
-
-Issue: Truncated dataframe output, .to_markdown() requires an additional module.
-Try: set max col width to None.
-
-Commit.
+The database tables are accessible via pgAdmin for example.

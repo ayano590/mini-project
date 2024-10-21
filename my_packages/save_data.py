@@ -26,7 +26,7 @@ class MBPostgres:
             self.cur.execute('DROP TABLE IF EXISTS events CASCADE')
 
         except psycopg2.Error as e:
-            print(f'Error while creating table: {e}')
+            print(f'Error while dropping table: {e}')
 
     def _create_table(self):
         try:
@@ -96,7 +96,8 @@ class MBPostgres:
             WHERE a.name ILIKE %s''', (artist_name,))
             rows = self.cur.fetchall()
             if not rows:
-                raise DatabaseError(f'No artist events found')
+                print(f'No artist events found')
+                return
             df = pd.DataFrame(rows, columns=['event_name', 'begin_time', 'end_time'])
             return df
         except psycopg2.Error as e:
