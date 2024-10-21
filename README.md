@@ -66,7 +66,7 @@ Save plot to png.
 
 First test run.
 
-Change syntax in FOREIGN KEY definition. (not sure why psycopg2 does not accept the old one)
+Change syntax in FOREIGN KEY definition.
 
 Correct the get_artists() method.
 
@@ -75,3 +75,9 @@ Change the returned datatype of api_events to tuple of tuples.
 Correct some syntax errors here and there.
 
 Add x label, sort df, increase bar spacing.
+
+Add method get_event_by_artist() and make the script interactive.
+
+Add some print statements.
+
+Commit.

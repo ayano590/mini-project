@@ -89,6 +89,19 @@ class MBPostgres:
         except psycopg2.Error as e:
             print(f'Error while getting events: {e}')
 
+    def get_event_by_artist(self, artist_name):
+        try:
+            self.cur.execute('''SELECT a.name, e.event_name, e.begin_time, e.end_time
+            FROM artists a INNER JOIN events e ON a.id = e.artist_id
+            WHERE a.name ILIKE %s''', (artist_name,))
+            rows = self.cur.fetchall()
+            if not rows:
+                raise DatabaseError(f'No artist events found')
+            df = pd.DataFrame(rows, columns=['name', 'event_name', 'begin_time', 'end_time'])
+            return df
+        except psycopg2.Error as e:
+            print(f'Error while getting artist events: {e}')
+
     def get_event_count(self):
         try:
             self.cur.execute('''SELECT a.name, COUNT(*) FROM artists a INNER JOIN events e

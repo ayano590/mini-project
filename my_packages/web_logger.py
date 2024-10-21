@@ -23,7 +23,7 @@ def web_scrape(headers):
                 rm_colon = rm_enum[-1].split(': ', maxsplit=1)
                 artists.append(rm_colon[0])
 
-            artists_set = set(artists)
+            artists_set = sorted(list(set(artists)))
             artists_tup = [(i, ) for i in artists_set]
             return artists_tup
 
