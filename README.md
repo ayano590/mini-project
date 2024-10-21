@@ -81,3 +81,14 @@ Add method get_event_by_artist() and make the script interactive.
 Add some print statements.
 
 Commit.
+
+Add database config file and import.
+
+Run docker container.
+
+Change imports. (remove os and time, use beautifulsoup4 instead of bf4)
+
+Issue: Truncated dataframe output, .to_markdown() requires an additional module.
+Try: set max col width to None.
+
+Commit.

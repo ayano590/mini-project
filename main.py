@@ -3,7 +3,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import time
-from my_packages import web_logger, api_logger, save_data
+from my_packages import web_logger, api_logger, save_data, db_config
 
 # define header for HTTP request
 
@@ -16,7 +16,8 @@ headers = {
 
 print('Connecting to the database...')
 
-my_class = save_data.MBPostgres(host='localhost', user='postgres', password='123', db_name='musicbrainz')
+my_class = save_data.MBPostgres(host=db_config.DB_HOST, user=db_config.DB_USER,
+                                password=db_config.DB_PASSWORD, db_name=db_config.DB_NAME)
 
 # scrape artist names and feed them into the artists table
 
@@ -59,7 +60,9 @@ artist_name = input('Enter artist name: ')
 
 df = my_class.get_event_by_artist(artist_name)
 
-print(df.to_markdown())
+pd.set_option('display.max_colwidth', None)
+
+print(df)
 
 # close connection
 
