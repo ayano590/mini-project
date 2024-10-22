@@ -2,4 +2,7 @@ matplotlib
 requests
 beautifulsoup4
 psycopg2
+numpy
 pandas
+tqdm
+pillow

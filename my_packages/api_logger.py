@@ -20,9 +20,26 @@ def api_events(num, artist, headers):
         if response.status_code == 200:
 
             event_json = response.json()['events']
+
             event_name = [i['name'] for i in event_json]
-            event_begin = [i['life-span']['begin'] for i in event_json]
-            event_end = [i['life-span']['end'] for i in event_json]
+
+            event_begin = []
+            event_end = []
+            # really ugly, do not judge, for some reason <if i['life-span']>, <if i['life-span']['end']> do NOT work
+            for i in event_json:
+                if 'life-span' not in i:
+                    event_begin.append('-')
+                    event_end.append('-')
+                else:
+                    if 'begin' not in i['life-span']:
+                        event_begin.append('-')
+                    else:
+                        event_begin.append(i['life-span']['begin'])
+                    if 'end' not in i['life-span']:
+                        event_end.append('-')
+                    else:
+                        event_end.append(i['life-span']['end'])
+
             num_list = [num for _ in range(len(event_json))]
             events_zip = zip(num_list, event_name, event_begin, event_end)
             events = (i for i in events_zip)

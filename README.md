@@ -7,7 +7,8 @@ The API then looks up all events linked to them, be it festivals, concerts and t
 
 The artists and the events are then saved in their respective tables with PostgreSQL.
 
-The user is asked to provide an artist name, in order to get the events.
+The user is asked to provide an artist name, in order to get the events and an image, if there is one.
+The image is saved into the project folder.
 
 The program outputs a csv file with the event count for each artist, as well as a graphical representation,
 split into two png files.

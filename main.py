@@ -1,8 +1,12 @@
 """main script"""
 
+import requests
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import time
+from tqdm import tqdm
+from PIL import Image
 from my_packages import web_logger, api_logger, save_data, db_config
 
 # define header for HTTP request
@@ -33,17 +37,19 @@ my_class.add_artists(artists)
 
 print('Getting artists from the database...')
 
-artist_table = my_class.get_artists()
+artist_list = my_class.get_artists()
 
 # for each artist, fetch the events from the API and save them together with the artist id
 
 print('Fetching events from the API and adding them to the database...')
 
-for _, row in artist_table.iterrows():
+# add progress bar, access the df rows accordingly
+for i in tqdm(range(artist_list.shape[0])):
+    row = artist_list.iloc[i]
     # set delay in HTTP requests to prevent getting blocked, musicbrainz API limit is 1 request per second
-    time.sleep(2)
+    time.sleep(1.1)
 
-    events = api_logger.api_events(row['id'], row['name'], headers=headers)
+    events = api_logger.api_events(int(row.iloc[0]), row.iloc[1], headers=headers)
 
     my_class.add_events(events)
 
@@ -58,11 +64,18 @@ df_sorted = df.sort_values(by=['event_count'])
 
 artist_name = input('Enter artist name: ')
 
-df = my_class.get_event_by_artist(artist_name)
+artist_events = my_class.get_event_by_artist(artist_name)
+
+artist_img = my_class.get_artist_image(artist_name)
 
 pd.set_option('display.max_colwidth', None)
 
-print(df)
+if isinstance(artist_events, pd.DataFrame):
+    print(artist_events)
+
+if artist_img:
+    with Image.open(requests.get(artist_img[0], stream=True).raw) as img:
+        img.save(f'{artist_name}.png')
 
 # close connection
 
@@ -74,17 +87,16 @@ my_class.close_connection()
 
 print('Plotting...')
 
-plt.barh(y=df_sorted['name'][:16], width=df_sorted['event_count'][:16])
-plt.xlabel('Number of events')
-plt.tight_layout()
-plt.savefig('event_count_1.png')
-plt.close()
+df_list = np.array_split(df_sorted, 5)
+count = 1
+for i in df_list:
 
-plt.barh(y=df_sorted['name'][16:], width=df_sorted['event_count'][16:])
-plt.xlabel('Number of events')
-plt.tight_layout()
-plt.savefig('event_count_2.png')
-plt.close()
+    plt.barh(y=i['name'], width=i['event_count'])
+    plt.xlabel('Number of events')
+    plt.tight_layout()
+    plt.savefig(f'event_count_{count}.png')
+    plt.close()
+    count += 1
 
 # save to csv
 

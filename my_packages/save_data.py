@@ -33,8 +33,9 @@ class MBPostgres:
             self.cur.execute('''
             CREATE TABLE IF NOT EXISTS artists (
                 id SERIAL PRIMARY KEY,
-                name VARCHAR(255) NOT NULL)
-                ''')
+                name VARCHAR(255) NOT NULL,
+                img TEXT
+                )''')
             self.cur.execute('''
             CREATE TABLE IF NOT EXISTS events (
                 id SERIAL PRIMARY KEY,
@@ -50,8 +51,8 @@ class MBPostgres:
     def add_artists(self, artists):
         try:
             query = '''
-            INSERT INTO artists (name)
-            VALUES (%s)'''
+            INSERT INTO artists (name, img)
+            VALUES (%s, %s)'''
             self.cur.executemany(query, artists)
 
         except psycopg2.Error as e:
@@ -69,7 +70,7 @@ class MBPostgres:
 
     def get_artists(self):
         try:
-            self.cur.execute('SELECT * FROM artists')
+            self.cur.execute('SELECT id, name FROM artists')
             rows = self.cur.fetchall()
             if not rows:
                 raise DatabaseError(f'No artists found')
@@ -77,6 +78,17 @@ class MBPostgres:
             return df
         except psycopg2.Error as e:
             print(f'Error while getting artists: {e}')
+
+    def get_artist_image(self, artist_name):
+        try:
+            self.cur.execute('SELECT img FROM artists WHERE name ILIKE %s', (artist_name,))
+            img = self.cur.fetchone()
+            if img == ('-', ):
+                print(f'No image available for {artist_name}')
+                return
+            return img
+        except psycopg2.Error as e:
+            print(f'Error while getting artist image: {e}')
 
     def get_events(self):
         try:
