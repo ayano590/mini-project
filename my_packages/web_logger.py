@@ -1,9 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 
-def web_scrape(headers):
+def scrape_jazz(headers):
 
     artists = []
+    img = []
 
     url_jazz = 'https://jazzfuel.com/best-jazz-albums/'
 
@@ -25,13 +26,21 @@ def web_scrape(headers):
                 artists.append(rm_colon[0])
 
             artists_set = sorted(list(set(artists)))
-            img = ['-' for _ in artists_set]
+            img.extend(['-' for _ in artists_set])
+
+            artists_tup = list(zip(artists_set, img))
+            return artists_tup
 
         else:
             raise Exception(f'ERROR: Could not fetch jazz artists')
 
     except Exception as e:
         print(e)
+
+def scrape_rock(headers):
+
+    artists = []
+    img = []
 
     url_rock = 'https://www.forbes.com/sites/entertainment/article/best-rock-bands/'
 
@@ -46,13 +55,13 @@ def web_scrape(headers):
                 rm_enum = val.text.split('. ', maxsplit=1)
                 if len(rm_enum) == 1:
                     continue
-                artists_set.append(rm_enum[1].strip())
+                artists.append(rm_enum[1].strip())
 
             img_list = div.findAll('figure')[1:31]
             for img_ele in img_list:
                 img.append(img_ele.find('progressive-image')['src'])
 
-            artists_tup = list(zip(artists_set, img))
+            artists_tup = list(zip(artists, img))
             return artists_tup
 
         else:

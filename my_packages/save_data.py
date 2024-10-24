@@ -14,26 +14,34 @@ class MBPostgres:
                 password=password,
                 database=db_name)
             self.cur = self.conn.cursor()
-            self._drop_table()
+            # only uncomment this if you want a fresh start everytime you run the program
+            # self._drop_table()
             self._create_table()
 
         except psycopg2.Error as e:
-            print(f'Error while connecting to database: {e}')
+            raise DatabaseError(f'Error while connecting to database: {e}')
 
     def _drop_table(self):
         try:
-            self.cur.execute('DROP TABLE IF EXISTS artists CASCADE')
             self.cur.execute('DROP TABLE IF EXISTS events CASCADE')
+            self.cur.execute('DROP TABLE IF EXISTS artists CASCADE')
+            self.cur.execute('DROP TABLE IF EXISTS genres CASCADE')
 
         except psycopg2.Error as e:
-            print(f'Error while dropping table: {e}')
+            raise DatabaseError(f'Error while dropping table: {e}')
 
     def _create_table(self):
         try:
             self.cur.execute('''
+            CREATE TABLE IF NOT EXISTS genres (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL
+                )''')
+            self.cur.execute('''
             CREATE TABLE IF NOT EXISTS artists (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
+                genre_id INT REFERENCES genres(id),
                 img TEXT
                 )''')
             self.cur.execute('''
@@ -46,13 +54,23 @@ class MBPostgres:
                 )''')
 
         except psycopg2.Error as e:
-            print(f'Error while creating table: {e}')
+            raise DatabaseError(f'Error while creating table: {e}')
+
+    def add_genres(self, genres):
+        try:
+            query = '''
+            INSERT INTO genres (name)
+            VALUES (%s)'''
+            self.cur.executemany(query, genres)
+
+        except psycopg2.Error as e:
+            raise DatabaseError(f'Error while adding artists: {e}')
 
     def add_artists(self, artists):
         try:
             query = '''
-            INSERT INTO artists (name, img)
-            VALUES (%s, %s)'''
+            INSERT INTO artists (name, img, genre_id)
+            VALUES (%s, %s, %s)'''
             self.cur.executemany(query, artists)
 
         except psycopg2.Error as e:
@@ -68,6 +86,27 @@ class MBPostgres:
         except psycopg2.Error as e:
             raise DatabaseError(f'Error while adding events: {e}')
 
+    def get_genre_id(self, genre):
+        try:
+            self.cur.execute('SELECT id FROM genres WHERE name ILIKE %s', (genre, ))
+            entry = self.cur.fetchone()
+            if not entry:
+                raise DatabaseError('Genre not found')
+            return entry[0]
+        except psycopg2.Error as e:
+            raise DatabaseError(f'Error while getting genres: {e}')
+
+    def get_genres(self):
+        try:
+            self.cur.execute('SELECT * FROM genres')
+            rows = self.cur.fetchall()
+            if not rows:
+                raise DatabaseError('No genres found')
+            df = pd.DataFrame(rows, columns=['id', 'name'])
+            return df
+        except psycopg2.Error as e:
+            raise DatabaseError(f'Error while getting genres: {e}')
+
     def get_artists(self):
         try:
             self.cur.execute('SELECT id, name FROM artists')
@@ -77,7 +116,19 @@ class MBPostgres:
             df = pd.DataFrame(rows, columns=['id', 'name'])
             return df
         except psycopg2.Error as e:
-            print(f'Error while getting artists: {e}')
+            raise DatabaseError(f'Error while getting artists: {e}')
+
+    def get_artist_by_name(self, artist_name):
+        try:
+            self.cur.execute('SELECT id FROM artists WHERE name ILIKE %s', (artist_name, ))
+            num = self.cur.fetchall()
+            if not num:
+                print(f'Artist {artist_name} not found')
+                return
+            return num
+        except psycopg2.Error as e:
+            raise DatabaseError(f'Error while getting artist: {e}')
+
 
     def get_artist_image(self, artist_name):
         try:
@@ -117,13 +168,27 @@ class MBPostgres:
 
     def get_event_count(self):
         try:
-            self.cur.execute('''SELECT a.name, COUNT(*) FROM artists a INNER JOIN events e
-            ON e.artist_id = a.id
+            self.cur.execute('''SELECT a.name, MAX(g.id), MAX(g.name), COUNT(*) FROM artists a INNER JOIN events e
+            ON e.artist_id = a.id INNER JOIN genres g ON g.id = a.genre_id
             GROUP BY a.name''')
             rows = self.cur.fetchall()
             if not rows:
                 raise DatabaseError(f'No events found')
-            df = pd.DataFrame(rows, columns=['name', 'event_count'])
+            df = pd.DataFrame(rows, columns=['name', 'id', 'genre', 'event_count'])
+            return df
+        except psycopg2.Error as e:
+            print(f'Error while getting events: {e}')
+
+    def get_event_count_per_genre(self):
+        try:
+            self.cur.execute('''SELECT MAX(g.id), g.name, COUNT(*) FROM artists a INNER JOIN events e
+                        ON e.artist_id = a.id
+                        INNER JOIN genres g ON g.id = a.genre_id
+                        GROUP BY g.name''')
+            rows = self.cur.fetchall()
+            if not rows:
+                raise DatabaseError(f'No events found')
+            df = pd.DataFrame(rows, columns=['id', 'name', 'event_count'])
             return df
         except psycopg2.Error as e:
             print(f'Error while getting events: {e}')

@@ -19,7 +19,7 @@ Create a PostgreSQL database.
 
 In the db_config.py file, the user can change the credentials for their server.
 
-In order to run this program, start Docker Desktop first.
+In order to run this program, start Docker Desktop and the PostGreSQL server.
 
 Then open the IDE of your choice. (PyCharm Professional was used for development)
 

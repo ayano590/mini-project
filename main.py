@@ -4,15 +4,14 @@ import requests
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import time
-from tqdm import tqdm
 from PIL import Image
-from my_packages import web_logger, api_logger, save_data, db_config
+from my_packages import web_logger, save_data, db_config, check_db
 
 # define header for HTTP request
 
 headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                      '(KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
         'From': 'aram.sajdak@gmail.com'
         }
 
@@ -23,42 +22,49 @@ print('Connecting to the database...')
 my_class = save_data.MBPostgres(host=db_config.DB_HOST, user=db_config.DB_USER,
                                 password=db_config.DB_PASSWORD, db_name=db_config.DB_NAME)
 
-# scrape artist names and feed them into the artists table
+# add genres Jazz and Rock to the genres table
+
+genres = [('Jazz', ), ('Rock', )]
+
+my_class.add_genres(genres=genres)
+
+# scrape artist names
 
 print('Scraping the artist names...')
 
-artists = web_logger.web_scrape(headers=headers)
+jazz_artists = web_logger.scrape_jazz(headers=headers)
 
-print('Adding artists to the database...')
+rock_artists = web_logger.scrape_rock(headers=headers)
 
-my_class.add_artists(artists)
+# check if all artists are already in the database
 
-# fetch the artist id and name from artists table
+for i in jazz_artists + rock_artists:
+    check = my_class.get_artist_by_name(i[0])
+    if not check:
+        check_db.add_get(my_class=my_class, jazz_artists=jazz_artists,
+                         rock_artists=rock_artists, headers=headers)
+        break
 
-print('Getting artists from the database...')
+print('All artists are in the database')
 
-artist_list = my_class.get_artists()
+# get all events
 
-# for each artist, fetch the events from the API and save them together with the artist id
+print('Getting events from the database...')
 
-print('Fetching events from the API and adding them to the database...')
-
-# add progress bar, access the df rows accordingly
-for i in tqdm(range(artist_list.shape[0])):
-    row = artist_list.iloc[i]
-    # set delay in HTTP requests to prevent getting blocked, musicbrainz API limit is 1 request per second
-    time.sleep(1.1)
-
-    events = api_logger.api_events(int(row.iloc[0]), row.iloc[1], headers=headers)
-
-    my_class.add_events(events)
+df = my_class.get_events()
 
 # get number of events for every artist
 
 print('Getting event count from the database...')
 
-df = my_class.get_event_count()
-df_sorted = df.sort_values(by=['event_count'])
+df_count = my_class.get_event_count()
+df_count_sorted = df_count.sort_values(by=['event_count'])
+
+# get number of events per genre
+
+print('Getting event count per genre from the database...')
+
+df_genre = my_class.get_event_count_per_genre()
 
 # get events for a specific artist
 
@@ -75,7 +81,7 @@ if isinstance(artist_events, pd.DataFrame):
 
 if artist_img:
     with Image.open(requests.get(artist_img[0], stream=True).raw) as img:
-        img.save(f'{artist_name}.png')
+        img.save('artist.png')
 
 # close connection
 
@@ -87,19 +93,43 @@ my_class.close_connection()
 
 print('Plotting...')
 
-df_list = np.array_split(df_sorted, 5)
-count = 1
-for i in df_list:
+df_jazz = df_count_sorted[df_count_sorted['genre'] == 'Jazz']
+df_rock = df_count_sorted[df_count_sorted['genre'] == 'Rock']
+
+df_jazz_list = np.array_split(df_jazz, 3)
+
+j_count = 1
+for i in df_jazz_list:
 
     plt.barh(y=i['name'], width=i['event_count'])
     plt.xlabel('Number of events')
+    plt.title('Jazz artists')
     plt.tight_layout()
-    plt.savefig(f'event_count_{count}.png')
+    plt.savefig(f'jazz_events_{j_count}.png')
     plt.close()
-    count += 1
+    j_count += 1
 
-# save to csv
+df_rock_list = np.array_split(df_rock, 2)
+
+r_count = 1
+for i in df_rock_list:
+
+    plt.barh(y=i['name'], width=i['event_count'])
+    plt.xlabel('Number of events')
+    plt.title('Rock bands')
+    plt.tight_layout()
+    plt.savefig(f'rock_events_{r_count}.png')
+    plt.close()
+    r_count += 1
+
+plt.bar(x=df_genre['name'], height=df_genre['event_count'], width=0.4)
+plt.title('Jazz vs Rock')
+plt.tight_layout()
+plt.savefig(f'jazz_vs_rock.png')
+plt.close()
+
+# save event list to csv
 
 print('Saving to csv...')
 
-df_sorted.to_csv('event_count.csv')
+df.to_csv('events.csv')
