@@ -125,10 +125,9 @@ class MBPostgres:
             if not num:
                 print(f'Artist {artist_name} not found')
                 return
-            return num
+            return num[0]
         except psycopg2.Error as e:
             raise DatabaseError(f'Error while getting artist: {e}')
-
 
     def get_artist_image(self, artist_name):
         try:
@@ -137,7 +136,7 @@ class MBPostgres:
             if img == ('-', ):
                 print(f'No image available for {artist_name}')
                 return
-            return img
+            return img[0]
         except psycopg2.Error as e:
             print(f'Error while getting artist image: {e}')
 
