@@ -20,8 +20,6 @@ class TestMBPostgres(unittest.TestCase):
             password=db_config.DB_PASSWORD,
             db_name=db_config.DB_NAME
         )
-        # after the tests are finished, you have to fetch all artists again
-        self.db_class._drop_table()
 
     def tearDown(self):
         print("\nTeardown called")
@@ -33,8 +31,8 @@ class TestMBPostgres(unittest.TestCase):
         with self.assertRaises(save_data.DatabaseError):
             self.db_class.get_genre_id('rvigz4wv98gsdzgvse')
         self.db_class.add_genres([('Jazz', )])
-        data = {'id': 1, 'name': 'Jazz'}
-        df = pd.DataFrame(data=data)
+        data = {'id': [1], 'name': ['Jazz']}
+        df = pd.DataFrame(data)
         self.assertTrue(self.db_class.get_genres().equals(df))
         self.assertEqual(self.db_class.get_genre_id('Jazz'), 1)
 
@@ -42,7 +40,7 @@ class TestMBPostgres(unittest.TestCase):
         with self.assertRaises(save_data.DatabaseError):
             self.db_class.get_artists()
         self.db_class.add_genres([('Jazz', )])
-        self.db_class.add_artists([('Post Melone', 1, '-'), ('Ayran Grande', 1, '-')])
+        self.db_class.add_artists([('Post Melone', '-', 1), ('Ayran Grande', '-', 1)])
         data = {'id': [1, 2], 'name': ['Post Melone', 'Ayran Grande']}
         df = pd.DataFrame(data)
         self.assertTrue(self.db_class.get_artists().equals(df))
@@ -52,7 +50,7 @@ class TestMBPostgres(unittest.TestCase):
         with self.assertRaises(save_data.DatabaseError):
             self.db_class.get_events()
         self.db_class.add_genres([('Jazz',)])
-        self.db_class.add_artists([('Post Melone', 1, '-'), ('Ayran Grande', 1, '-')])
+        self.db_class.add_artists([('Post Melone', '-', 1), ('Ayran Grande', '-', 1)])
         self.db_class.add_events([(1, 'The Best Festival', '2050-07-12', '2052-03-11')])
         data = {'id': [1], 'artist_id': [1], 'event_name': ['The Best Festival'],
                 'begin_time': ['2050-07-12'], 'end_time': ['2052-03-11']}
@@ -64,7 +62,7 @@ class TestMBPostgres(unittest.TestCase):
         with self.assertRaises(save_data.DatabaseError):
             self.db_class.get_event_count()
         self.db_class.add_genres([('Jazz',)])
-        self.db_class.add_artists([('Post Melone', 1, '-'), ('Ayran Grande', 1, '-')])
+        self.db_class.add_artists([('Post Melone', '-', 1), ('Ayran Grande', '-', 1)])
         self.db_class.add_events([(1, 'The Best Festival', '2050-07-12', '2052-03-11')])
         data1 = {'name': ['Post Melone'], 'id': [1], 'genre': ['Jazz'], 'event_count': [1]}
         df1 = pd.DataFrame(data1)
@@ -76,7 +74,7 @@ class TestMBPostgres(unittest.TestCase):
     def test_get_artist_image(self):
         self.assertIsNone(self.db_class.get_artist_image('Post Melone'))
         self.db_class.add_genres([('Jazz', )])
-        self.db_class.add_artists([('Post Melone', 1, 'https://www.google.com')])
+        self.db_class.add_artists([('Post Melone', 'https://www.google.com', 1)])
         self.assertEqual(self.db_class.get_artist_image('Post Melone'),
                          'https://www.google.com')
 

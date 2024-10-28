@@ -14,7 +14,7 @@ class MBPostgres:
                 password=password,
                 database=db_name)
             self.cur = self.conn.cursor()
-            # only uncomment this if you want a fresh start everytime you run the program
+            # only uncomment the next line if you want a fresh start or for the unit test
             # self._drop_table()
             self._create_table()
 
@@ -121,7 +121,7 @@ class MBPostgres:
     def get_artist_by_name(self, artist_name):
         try:
             self.cur.execute('SELECT id FROM artists WHERE name ILIKE %s', (artist_name, ))
-            num = self.cur.fetchall()
+            num = self.cur.fetchone()
             if not num:
                 print(f'Artist {artist_name} not found')
                 return
@@ -135,6 +135,9 @@ class MBPostgres:
             img = self.cur.fetchone()
             if img == ('-', ):
                 print(f'No image available for {artist_name}')
+                return
+            elif not img:
+                print(f'Artist {artist_name} not found')
                 return
             return img[0]
         except psycopg2.Error as e:

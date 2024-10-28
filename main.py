@@ -39,7 +39,7 @@ rock_artists = web_logger.scrape_rock(headers=headers)
 # check if all artists are already in the database
 
 for i in jazz_artists + rock_artists:
-    check = my_class.get_artist_by_name(i)
+    check = my_class.get_artist_by_name(i[0])
     if not check:
         check_db.add_get(my_class=my_class, jazz_artists=jazz_artists,
                          rock_artists=rock_artists, headers=headers)
