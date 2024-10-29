@@ -7,7 +7,7 @@ as well as the best 30 Rock Bands.
 
 The API then looks up all events linked to them, be it festivals, concerts and the like.
 
-The genres, artists and events are then saved in their respective tables with PostgreSQL.
+The genres, artists and events are then saved in their respective tables with PostGreSQL.
 
 The user is asked to provide an artist name, in order to get the events and an image, if there is one.
 The image is saved into the project folder.
@@ -22,9 +22,9 @@ uncomment line 18 from save_data.py located in the my_packages folder.
 The program is set to skip the API requests if all artists are already in the database,
 irrespective of the saved events.
 
-Create a PostgreSQL database.
+Create a PostGreSQL database in pgAdmin and give it a name.
 
-In the db_config.py file, the user can change the credentials for their server.
+In the db_config.py file, the user can change the credentials for their server, including the database name.
 
 In order to run this program, start Docker Desktop and the PostGreSQL server.
 
@@ -47,10 +47,12 @@ Link on how to use Conda in Docker: https://stackoverflow.com/questions/52049202
 2. CLI (COMMAND LINE INTERFACE):
 
 In the IDE terminal, go to the project folder and run these commands
-(replace <imagename> with a name of your choice):
+(replace "imagename" with a name of your choice, without the quotes):
 
-docker build -t <imagename> .
-docker run -it --rm -v "${PWD}:/app" <imagename>
+```console
+docker build -t "imagename" .
+docker run -it --rm -v "${PWD}:/app" "imagename"
+```
 
 ---OUTPUT---
 
