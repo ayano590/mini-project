@@ -80,7 +80,7 @@ if isinstance(artist_events, pd.DataFrame):
     print(artist_events)
 
 if artist_img:
-    with Image.open(requests.get(artist_img[0], stream=True).raw) as img:
+    with Image.open(requests.get(artist_img, stream=True).raw) as img:
         img.save('artist.png')
 
 # close connection
